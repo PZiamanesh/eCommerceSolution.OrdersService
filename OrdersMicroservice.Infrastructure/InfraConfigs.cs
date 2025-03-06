@@ -20,7 +20,7 @@ public static class InfraConfigs
             .Replace("$MONGO_PORT", Environment.GetEnvironmentVariable("MONGO_PORT"));
 
         services.AddSingleton<IMongoClient>(sp => new MongoClient(connString));
-        services.AddSingleton(sp => sp.GetRequiredService<IMongoClient>().GetDatabase("OrdersDatabase"));
+        services.AddSingleton(sp => sp.GetRequiredService<IMongoClient>().GetDatabase(Environment.GetEnvironmentVariable("MONGO_DATABASE")));
 
         services.AddScoped<IOrderRepository, OrderRepository>();
 

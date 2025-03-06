@@ -1,6 +1,7 @@
 using FluentValidation.AspNetCore;
 using OrdersMicroservice.API.Middlewares;
 using OrdersMicroservice.Core;
+using OrdersMicroservice.Core.HttpClients;
 using OrdersMicroservice.Infrastructure;
 using System.Reflection;
 using System.Text.Json.Serialization;
@@ -19,7 +20,12 @@ Assembly[] assemblies = [
 builder.Services.AddInfrastructureServices(configuration);
 builder.Services.AddCoreServices(configuration);
 
-builder.Services.AddControllers();
+builder.Services.AddControllers()
+    .AddJsonOptions(cnfg =>
+    {
+        cnfg.JsonSerializerOptions.PropertyNameCaseInsensitive = true;
+        cnfg.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter());
+    });
 
 builder.Services.AddFluentValidationAutoValidation();
 
@@ -35,6 +41,11 @@ builder.Services.AddCors(options =>
         .AllowAnyMethod()
         .AllowAnyHeader();
     });
+});
+
+builder.Services.AddHttpClient<UsersMicroserviceClient>(clientConfig =>
+{
+    clientConfig.BaseAddress = new Uri($"http://{builder.Configuration["UsersMicroserviceHost"]}:{builder.Configuration["UsersMicroservicePort"]}");
 });
 
 // http pipleline
