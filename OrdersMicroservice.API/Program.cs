@@ -48,13 +48,18 @@ builder.Services.AddHttpClient<UsersMicroserviceClient>(clientConfig =>
     clientConfig.BaseAddress = new Uri($"http://{builder.Configuration["UsersMicroserviceHost"]}:{builder.Configuration["UsersMicroservicePort"]}");
 });
 
+builder.Services.AddHttpClient<ProductsMicroserviceClient>(clientConfig =>
+{
+    clientConfig.BaseAddress = new Uri($"http://{builder.Configuration["ProductsMicroserviceHost"]}:{builder.Configuration["ProductsMicroservicePort"]}");
+});
+
 // http pipleline
 
 var app = builder.Build();
 
 app.UseExceptionHandlingMiddleware();
 
-app.UseHttpsRedirection();
+//app.UseHttpsRedirection();
 
 app.UseRouting();
 

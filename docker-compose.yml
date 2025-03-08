@@ -1,0 +1,108 @@
+version: '3.4'
+
+services:
+  orders-microservice-api:
+    image: orders-microservice
+    build:
+      context: .
+      dockerfile: OrdersMicroservice.API/Dockerfile
+    environment:
+      - MONGO_HOST=mongodb-container
+      - MONGO_PORT=27017
+      - MONGO_DATABASE=OrdersDatabase
+      - UsersMicroserviceHost=users-microservice-api
+      - UsersMicroservicePort=9090
+      - ProductsMicroserviceHost=products-microservice-api
+      - ProductsMicroservicePort=8080
+    ports:
+      - "45000:8080"
+    networks:
+      - orders-mongodb-network
+      - ecommerce-network
+    depends_on:
+      - mongodb-container
+
+
+  mongodb-container:
+    image: mongo:latest
+    ports:
+      - "27017:27017"
+    volumes:
+      - ../mongodb-init:/docker-entrypoint-initdb.d
+    networks:
+      - orders-mongodb-network
+
+
+  products-microservice-api:
+    image: products-microservice:latest
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development 
+      - ASPNETCORE_HTTP_PORTS=8080
+      - MYSQL_HOST=mysql-container
+      - MYSQL_PORT=3306
+      - MYSQL_DATABASE=ecommerceproductsdatabase
+      - MYSQL_USER=root
+      - MYSQL_PASSWORD=admin
+    ports:
+      - "46000:8080"
+    networks:
+      - products-mysql-network
+      - ecommerce-network
+    depends_on:
+      - mysql-container
+
+
+  mysql-container:
+    image: mysql:latest
+    ports:
+      - "3308:3306"
+    environment:
+      - MYSQL_ROOT_PASSWORD=admin 
+    volumes:
+      - ../mysql-init:/docker-entrypoint-initdb.d
+    networks:
+      - products-mysql-network
+
+
+  users-microservice-api:
+    image: users-microservice:latest
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ASPNETCORE_HTTP_PORTS=8080
+      - POSTGRES_HOST=postgres-container
+      - POSTGRES_PORT=5432
+      - POSTGRES_DATABASE=eCommerceUsers
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=admin
+    ports:
+      - "47000:9090"
+    networks:
+      - users-postgres-network
+      - ecommerce-network
+    depends_on:
+      - postgres-container
+
+
+  postgres-container:
+    image: postgres:latest
+    ports:
+      - "5432:5432"
+    environment:
+      - POSTGRES_PASSWORD=admin
+      - POSTGRES_USER=postgres
+      - POSTGRES_DB=eCommerceUsers
+    volumes:
+      - ../postgres-init:/docker-entrypoint-initdb.d
+    networks:
+      - users-postgres-network
+
+
+networks:
+  orders-mongodb-network:
+    driver: bridge
+  products-mysql-network:
+    driver: bridge
+  users-postgres-network:
+    driver: bridge
+  ecommerce-network:
+    driver: bridge

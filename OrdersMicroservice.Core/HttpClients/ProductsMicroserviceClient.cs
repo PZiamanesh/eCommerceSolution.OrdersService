@@ -5,12 +5,12 @@ using System.Text.Json;
 
 namespace OrdersMicroservice.Core.HttpClients;
 
-public class UsersMicroserviceClient
+public class ProductsMicroserviceClient
 {
     private readonly HttpClient httpClient;
     private readonly JsonSerializerOptions jsonOptions;
 
-    public UsersMicroserviceClient(HttpClient httpClient)
+    public ProductsMicroserviceClient(HttpClient httpClient)
     {
         this.httpClient = httpClient;
         jsonOptions = new JsonSerializerOptions
@@ -20,9 +20,9 @@ public class UsersMicroserviceClient
         };
     }
 
-    public async Task<UserDTO?> GetUserByUserId(Guid userID)
+    public async Task<ProductDTO?> GetProductByProductId(Guid productId)
     {
-        var response = await httpClient.GetAsync($"/api/users/{userID}");
+        var response = await httpClient.GetAsync($"/api/products/search/product-id/{productId}");
 
         if (!response.IsSuccessStatusCode)
         {
@@ -31,8 +31,8 @@ public class UsersMicroserviceClient
 
         var ssss = await response.Content.ReadAsStringAsync();
 
-        var userDto = await response.Content.ReadFromJsonAsync<UserDTO>(jsonOptions);
+        var productDto = await response.Content.ReadFromJsonAsync<ProductDTO>(jsonOptions);
 
-        return userDto;
+        return productDto;
     }
 }

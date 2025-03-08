@@ -10,7 +10,9 @@
         "MONGO_PORT": "27017",
         "MONGO_DATABASE": "OrdersDatabase",
         "UsersMicroserviceHost": "localhost",
-        "UsersMicroservicePort": "9090"
+        "UsersMicroservicePort": "9090",
+        "ProductsMicroserviceHost": "localhost",
+        "ProductsMicroservicePort": "8080"
       },
       "dotnetRunMessages": true,
       "applicationUrl": "http://localhost:5002",
@@ -26,7 +28,9 @@
         "MONGO_PORT": "27017",
         "MONGO_DATABASE": "OrdersDatabase",
         "UsersMicroserviceHost": "localhost",
-        "UsersMicroservicePort": "9090"
+        "UsersMicroservicePort": "9090",
+        "ProductsMicroserviceHost": "localhost",
+        "ProductsMicroservicePort": "8080"
       },
       "dotnetRunMessages": true,
       "applicationUrl": "https://localhost:7002",
@@ -37,20 +41,29 @@
       "commandName": "IISExpress",
       "launchBrowser": true,
       "environmentVariables": {
-        "ASPNETCORE_ENVIRONMENT": "Development"
+        "ASPNETCORE_ENVIRONMENT": "Development",
+        "MONGO_HOST": "localhost",
+        "MONGO_PORT": "27017",
+        "MONGO_DATABASE": "OrdersDatabase",
+        "UsersMicroserviceHost": "localhost",
+        "UsersMicroservicePort": "9090",
+        "ProductsMicroserviceHost": "localhost",
+        "ProductsMicroservicePort": "8080"
       }
     },
 
     "Docker": {
       "commandName": "Docker",
-      "launchBrowser": true,
+      "launchBrowser": false,
       "launchUrl": "{Scheme}://{ServiceHost}:{ServicePort}",
       "environmentVariables": {
         "ASPNETCORE_HTTPS_PORTS": "8081",
         "ASPNETCORE_HTTP_PORTS": "8080",
         "MONGO_DATABASE": "OrdersDatabase",
         "UsersMicroserviceHost": "localhost",
-        "UsersMicroservicePort": "9090"
+        "UsersMicroservicePort": "9090",
+        "ProductsMicroserviceHost": "localhost",
+        "ProductsMicroservicePort": "8080"
       },
       "publishAllPorts": true,
       "useSSL": true
