@@ -26,7 +26,7 @@ public class UsersMicroserviceClient
 
         if (!response.IsSuccessStatusCode)
         {
-            return null;
+            throw new HttpRequestException("error finding user", null, System.Net.HttpStatusCode.BadRequest);
         }
 
         var ssss = await response.Content.ReadAsStringAsync();

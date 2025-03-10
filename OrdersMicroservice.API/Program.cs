@@ -1,8 +1,11 @@
 using FluentValidation.AspNetCore;
+using Microsoft.Extensions.DependencyInjection;
 using OrdersMicroservice.API.Middlewares;
 using OrdersMicroservice.Core;
 using OrdersMicroservice.Core.HttpClients;
+using OrdersMicroservice.Core.Policies;
 using OrdersMicroservice.Infrastructure;
+using Polly;
 using System.Reflection;
 using System.Text.Json.Serialization;
 
@@ -36,17 +39,20 @@ builder.Services.AddSwaggerGen();
 
 builder.Services.AddCors(options =>
 {
-    options.AddDefaultPolicy(builder => {
+    options.AddDefaultPolicy(builder =>
+    {
         builder.WithOrigins("http://localhost:4200")
         .AllowAnyMethod()
         .AllowAnyHeader();
     });
 });
 
+builder.Services.AddScoped<IUsersMicroservicePolicy, UsersMicroservicePolicy>();
+
 builder.Services.AddHttpClient<UsersMicroserviceClient>(clientConfig =>
 {
     clientConfig.BaseAddress = new Uri($"http://{builder.Configuration["UsersMicroserviceHost"]}:{builder.Configuration["UsersMicroservicePort"]}");
-});
+}).AddPolicyHandler((sp, _) => sp.GetRequiredService<IUsersMicroservicePolicy>().GetRetryThenCircuitBreakPolicy());
 
 builder.Services.AddHttpClient<ProductsMicroserviceClient>(clientConfig =>
 {
