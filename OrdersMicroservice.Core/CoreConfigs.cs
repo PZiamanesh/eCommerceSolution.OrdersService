@@ -18,6 +18,11 @@ public static class CoreConfigs
 
         services.AddValidatorsFromAssemblyContaining(typeof(CoreConfigs));
 
+        services.AddStackExchangeRedisCache(ops =>
+        {
+            ops.Configuration = $"{configuration["REDIS_HOST"]}:{configuration["REDIS_PORT"]}";
+        });
+
         return services;
     }
 }

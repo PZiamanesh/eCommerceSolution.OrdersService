@@ -14,6 +14,8 @@ services:
       - UsersMicroservicePort=9090
       - ProductsMicroserviceHost=products-microservice-api
       - ProductsMicroservicePort=8080
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
     ports:
       - "45000:8080"
     networks:
@@ -102,7 +104,7 @@ services:
     ports:
       - "6379:6379"
     volumes:
-      - ../redis-cache:/data
+      - C:/Users/pourya/Desktop/harsha-microservices/redis-cache:/data
     networks:
       - ecommerce-network
 

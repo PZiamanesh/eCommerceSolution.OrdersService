@@ -12,7 +12,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\OrdersMicroservice.Core\OrdersMicroservice.Core.csproj" />
+    <ProjectReference Include="..\OrdersMicroservice.Core\OrdersMicroService.Core.csproj" />
   </ItemGroup>
 
 </Project>
