@@ -10,12 +10,16 @@ services:
       - MONGO_HOST=mongodb-container
       - MONGO_PORT=27017
       - MONGO_DATABASE=OrdersDatabase
-      - UsersMicroserviceHost=users-microservice-api
-      - UsersMicroservicePort=9090
-      - ProductsMicroserviceHost=products-microservice-api
+      - UsersMicroserviceHost=apigateway
+      - UsersMicroservicePort=8080
+      - ProductsMicroserviceHost=apigateway
       - ProductsMicroservicePort=8080
       - REDIS_HOST=redis
       - REDIS_PORT=6379
+      - RabbitMQ_HostName=rabbitmq
+      - RabbitMQ_UserName=user
+      - RabbitMQ_Password=password
+      - RabbitMQ_Port=5672
     ports:
       - "45000:8080"
     networks:
@@ -45,6 +49,10 @@ services:
       - MYSQL_DATABASE=ecommerceproductsdatabase
       - MYSQL_USER=root
       - MYSQL_PASSWORD=admin
+      - RabbitMQ_HostName=rabbitmq
+      - RabbitMQ_UserName=user
+      - RabbitMQ_Password=password
+      - RabbitMQ_Port=5672
     ports:
       - "46000:8080"
     networks:
@@ -105,6 +113,29 @@ services:
       - "6379:6379"
     volumes:
       - C:/Users/pourya/Desktop/harsha-microservices/redis-cache:/data
+    networks:
+      - ecommerce-network
+
+
+  apigateway:
+    image: apigateway
+    build:
+      context: .
+      dockerfile: ApiGateway/Dockerfile
+    ports:
+      - "5555:8080"
+    networks:
+      - ecommerce-network
+
+
+  rabbitmq:
+    image: rabbitmq:management
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    environment:
+      - RABBITMQ_DEFAULT_USER=user
+      - RABBITMQ_DEFAULT_PASS=password
     networks:
       - ecommerce-network
 

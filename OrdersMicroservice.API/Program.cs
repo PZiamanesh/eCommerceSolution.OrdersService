@@ -52,7 +52,9 @@ builder.Services.AddScoped<IUsersMicroservicePolicy, UsersMicroservicePolicy>();
 builder.Services.AddHttpClient<UsersMicroserviceClient>(clientConfig =>
 {
     clientConfig.BaseAddress = new Uri($"http://{builder.Configuration["UsersMicroserviceHost"]}:{builder.Configuration["UsersMicroservicePort"]}");
-}).AddPolicyHandler((sp, _) => sp.GetRequiredService<IUsersMicroservicePolicy>().GetRetryThenCircuitBreakPolicy());
+})
+    .AddPolicyHandler((sp, _) => sp.GetRequiredService<IUsersMicroservicePolicy>().GetRetryPolicy())
+    .AddPolicyHandler((sp, _) => sp.GetRequiredService<IUsersMicroservicePolicy>().GetCircuitBreakerPolicy());
 
 builder.Services.AddHttpClient<ProductsMicroserviceClient>(clientConfig =>
 {

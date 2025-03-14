@@ -12,18 +12,8 @@ public class UsersMicroservicePolicy : IUsersMicroservicePolicy
         this.logger = logger;
     }
 
-    public IAsyncPolicy<HttpResponseMessage> GetRetryThenCircuitBreakPolicy()
+    public IAsyncPolicy<HttpResponseMessage> GetCircuitBreakerPolicy()
     {
-        var retryPolicy = Policy
-            .HandleResult<HttpResponseMessage>(r => !r.IsSuccessStatusCode)
-            .WaitAndRetryAsync(
-                retryCount: 3,
-                sleepDurationProvider: retryAttempt => TimeSpan.FromSeconds(2),
-                onRetry: (outcome, timespan, retryAttempt, context) =>
-                {
-                    logger.LogInformation($"retry {retryAttempt} after {timespan} seconds");
-                });
-
         var circuitBreakerPolicy = Policy
             .HandleResult<HttpResponseMessage>(r => !r.IsSuccessStatusCode)
             .CircuitBreakerAsync(
@@ -38,7 +28,21 @@ public class UsersMicroservicePolicy : IUsersMicroservicePolicy
                     logger.LogInformation("circuit now closed");
                 });
 
+        return circuitBreakerPolicy;
+    }
 
-        return Policy.WrapAsync(retryPolicy, circuitBreakerPolicy);
+    public IAsyncPolicy<HttpResponseMessage> GetRetryPolicy()
+    {
+        var retryPolicy = Policy
+            .HandleResult<HttpResponseMessage>(r => !r.IsSuccessStatusCode)
+            .WaitAndRetryAsync(
+                retryCount: 3,
+                sleepDurationProvider: retryAttempt => TimeSpan.FromSeconds(2),
+                onRetry: (outcome, timespan, retryAttempt, context) =>
+                {
+                    logger.LogInformation($"retry {retryAttempt} after {timespan} seconds");
+                });
+
+        return retryPolicy;
     }
 }
