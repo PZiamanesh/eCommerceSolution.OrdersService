@@ -3,6 +3,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using OrdersMicroservice.Core.ServiceContracts;
 using OrdersMicroservice.Core.Services;
+using OrdersMicroService.Core.RabbitMQ;
 
 namespace OrdersMicroservice.Core;
 
@@ -22,6 +23,10 @@ public static class CoreConfigs
         {
             ops.Configuration = $"{configuration["REDIS_HOST"]}:{configuration["REDIS_PORT"]}";
         });
+
+        services.AddSingleton<IRabbitMQProductNameUpdateConsumer, RabbitMQProductNameUpdateConsumer>();
+
+        services.AddHostedService<RabbitMQProductNameUpdateHostedService>();
 
         return services;
     }

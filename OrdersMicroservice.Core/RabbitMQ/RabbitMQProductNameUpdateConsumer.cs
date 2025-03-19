@@ -1,5 +1,4 @@
-﻿using DnsClient.Internal;
-using Microsoft.Extensions.Configuration;
+﻿using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using RabbitMQ.Client;
 using RabbitMQ.Client.Events;
@@ -10,65 +9,70 @@ namespace OrdersMicroService.Core.RabbitMQ;
 
 public class RabbitMQProductNameUpdateConsumer : IDisposable, IRabbitMQProductNameUpdateConsumer
 {
-    private readonly IConfiguration configuration;
-    private readonly ILogger<RabbitMQProductNameUpdateConsumer> logger;
-    private readonly IConnection connection;
-    private readonly IModel channel;
+    private readonly IConfiguration _configuration;
+    private readonly ILogger<RabbitMQProductNameUpdateConsumer> _logger;
+    private readonly IModel _channel;
+    private readonly IConnection _connection;
 
     public RabbitMQProductNameUpdateConsumer(
         IConfiguration configuration,
         ILogger<RabbitMQProductNameUpdateConsumer> logger
         )
     {
-        this.configuration = configuration;
-        this.logger = logger;
-        var hostname = this.configuration["RabbitMQ_HostName"]!;
-        var userName = this.configuration["RabbitMQ_UserName"]!;
-        var password = this.configuration["RabbitMQ_Password"]!;
-        var port = this.configuration["RabbitMQ_Port"]!;
+        _configuration = configuration;
+        _logger = logger;
+        string hostName = _configuration["RabbitMQ_HostName"]!;
+        string userName = _configuration["RabbitMQ_UserName"]!;
+        string password = _configuration["RabbitMQ_Password"]!;
+        string port = _configuration["RabbitMQ_Port"]!;
 
-        var connectionFactory = new ConnectionFactory()
+        ConnectionFactory connectionFactory = new ConnectionFactory()
         {
-            HostName = hostname,
+            HostName = hostName,
             UserName = userName,
             Password = password,
-            Port = int.Parse(port)
+            Port = Convert.ToInt32(port)
         };
+        _connection = connectionFactory.CreateConnection();
 
-        connection = connectionFactory.CreateConnection();
-        channel = connection.CreateModel();
+        _channel = _connection.CreateModel();
     }
 
     public void Consume()
     {
         string routingKey = "product.update.name";
-        string queueName = "product.update.name.queue";
-        string exchangeName = configuration["RabbitMQ_Products_Exchange"]!;
+        string queueName = "orders.product.update.name.queue";
 
-        channel.ExchangeDeclare(exchange: exchangeName, type: ExchangeType.Direct, durable: true);
-        channel.QueueDeclare(queueName, durable: true, exclusive: false, autoDelete: false, arguments: null);
-        channel.QueueBind(queueName, exchangeName, routingKey);
+        //Create exchange
+        string exchangeName = _configuration["RabbitMQ_Products_Exchange"]!;
+        _channel.ExchangeDeclare(exchange: exchangeName, type: ExchangeType.Direct, durable: true);
 
-        var consumer = new EventingBasicConsumer(channel);
+        //Create message queue
+        _channel.QueueDeclare(queue: queueName, durable: true, exclusive: false, autoDelete: false, arguments: null); //x-message-ttl | x-max-length | x-expired 
 
+        //Bind the message to exchange
+        _channel.QueueBind(queue: queueName, exchange: exchangeName, routingKey: routingKey);
+
+        //Consume from message queue
+        EventingBasicConsumer consumer = new EventingBasicConsumer(_channel);
         consumer.Received += (sender, args) =>
         {
             byte[] body = args.Body.ToArray();
-            var message = Encoding.UTF8.GetString(body);
+            string message = Encoding.UTF8.GetString(body);
 
             if (message != null)
             {
-                var productNameUpdateMessage = JsonSerializer.Deserialize<ProductNameUpdateMessage>(message);
-                logger.LogInformation($"product name updated: {productNameUpdateMessage.ProductID} - {productNameUpdateMessage.ProductName}");
+                ProductNameUpdateMessage? productNameUpdateMessage = JsonSerializer.Deserialize<ProductNameUpdateMessage>(message);
+
+                _logger.LogInformation($"Product name updated: {productNameUpdateMessage.ProductID}, New name: {productNameUpdateMessage.NewName}");
             }
         };
-
-        channel.BasicConsume(queueName, consumer: consumer, autoAck: true);
+        _channel.BasicConsume(queue: queueName, consumer: consumer, autoAck: true);
     }
 
     public void Dispose()
     {
-        channel.Dispose();
-        connection.Dispose();
+        _channel.Dispose();
+        _connection.Dispose();
     }
 }

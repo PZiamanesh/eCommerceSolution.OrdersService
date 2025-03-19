@@ -6,6 +6,7 @@ using OrdersMicroservice.Core.HttpClients;
 using OrdersMicroservice.Core.Policies;
 using OrdersMicroservice.Infrastructure;
 using Polly;
+using RabbitMQ.Client;
 using System.Reflection;
 using System.Text.Json.Serialization;
 
