@@ -26,7 +26,7 @@ public static class CoreConfigs
 
         services.AddSingleton<IRabbitMQProductNameUpdateConsumer, RabbitMQProductNameUpdateConsumer>();
 
-        services.AddHostedService<RabbitMQProductNameUpdateHostedService>();
+        services.AddHostedService<RabbitMQProductNameUpdateHostedService>(); // runs in the background which triggers consume queue in rabbitmq
 
         return services;
     }
